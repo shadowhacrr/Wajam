@@ -25,6 +25,10 @@ const LoveLogo = config.logo;
 const waSessions = {};
 const unauthorized = Buffer.from('8J+aqyBZb3UgYXJlIG5vdCBhdXRob3JpemVkIHRvIHVzZSB0aGlzIGNvbW1hbmQu', 'base64').toString();
 
+// ═══════════════════════════════════════════════════
+//  🎨  STYLISH FONTS
+// ═══════════════════════════════════════════════════
+
 const stylishFonts = {
     fancy: (text) => {
         const map = {
@@ -67,6 +71,10 @@ function styleText(text, font = 'fancy') {
     if (stylishFonts[font]) return stylishFonts[font](text);
     return text;
 }
+
+// ═══════════════════════════════════════════════════
+//  🎭  DECORATIONS & EMOJIS
+// ═══════════════════════════════════════════════════
 
 const deco = {
     line: '━━━━━━━━━━━━━━━━━━━━━━━',
@@ -205,6 +213,10 @@ const deco = {
     biohazard: '☣️'
 };
 
+// ═══════════════════════════════════════════════════
+//  💾  DATABASE FUNCTIONS
+// ═══════════════════════════════════════════════════
+
 const verifyDBPath = path.join(LoveDir, 'verified.json');
 const pendingVerifyPath = path.join(LoveDir, 'pending.json');
 
@@ -244,6 +256,10 @@ function verifyUser(userId) {
     savePendingDB(pending);
 }
 
+// ═══════════════════════════════════════════════════
+//  🎬  ANIMATION FRAMES
+// ═══════════════════════════════════════════════════
+
 const animFrames = {
     loading: ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'],
     dots: ['.', '..', '...', '....', '.....'],
@@ -264,7 +280,10 @@ function getAnimatedText(text, frameType = 'loading', index = 0) {
     return `${frames[index % frames.length]} ${text}`;
 }
 
-// ====== ANIMATION FUNCTIONS ======
+// ═══════════════════════════════════════════════════
+//  🎬  ANIMATION FUNCTIONS
+// ═══════════════════════════════════════════════════
+
 async function sendTypingAnimation(bot, chatId, duration = 3000) {
     const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
     const msg = await bot.sendMessage(chatId, `${deco.bot} Loading...`);
@@ -332,9 +351,11 @@ async function sendErrorAnimation(bot, chatId, text) {
     await new Promise(r => setTimeout(r, 2000));
     await bot.deleteMessage(chatId, msg.message_id).catch(() => {});
 }
-// ====== END ANIMATIONS ======
 
-// ====== COMPACT WELCOME MESSAGE ======
+// ═══════════════════════════════════════════════════
+//  📝  COMPACT WELCOME MESSAGES
+// ═══════════════════════════════════════════════════
+
 function getVerificationMessage(name) {
     const s = (text) => styleText(text, 'script');
     const f = (text) => styleText(text, 'fancy');
@@ -351,6 +372,8 @@ ${deco.warning} ${f('JOIN TO USE BOT')}
 
 ${deco.bullet} Channel
 ${deco.bullet} Group
+${deco.bullet} YouTube
+${deco.bullet} WhatsApp
 
 ${deco.rocket} Click below to join!
 `;
@@ -375,7 +398,10 @@ ${deco.money} Contact admin to buy
 ${deco.double}
 `;
 }
-// ====== END WELCOME ======
+
+// ═══════════════════════════════════════════════════
+//  🔔  NOTIFICATIONS
+// ═══════════════════════════════════════════════════
 
 async function notifyPremiumAdded(bot, userId, addedBy) {
     const s = (text) => styleText(text, 'script');
@@ -429,6 +455,10 @@ ${deco.info} Contact admin for more information.
     }
 }
 
+// ═══════════════════════════════════════════════════
+//  📦  LOGIC IMPORTS
+// ═══════════════════════════════════════════════════
+
 const SYLoves = `./SY/S7/`;
 const CrashLogic = require(SYLoves + 'crashfinity');
 const stickerLogic = require(SYLoves + 'StickerCrash');
@@ -441,6 +471,10 @@ const testlogic = require(SYLoves + 'test');
 const crashjamLogic = require(SYLoves + 'crashjam');
 const killsystemLogic = require(SYLoves + 'killsystem');
 const gcFrzLogic = require(SYLoves + 'gcFrz');
+
+// ═══════════════════════════════════════════════════
+//  🎨  COLORS & UTILS
+// ═══════════════════════════════════════════════════
 
 const colors = {
     reset: "\x1b[0m", gray: "\x1b[90m", blue: "\x1b[34m", green: "\x1b[32m",
@@ -468,6 +502,10 @@ function log(type, user, message) {
     console.log(`${timestamp} | ${typeTag} | ${userTag} | ${message}`);
 }
 
+// ═══════════════════════════════════════════════════
+//  💾  DATABASE
+// ═══════════════════════════════════════════════════
+
 const getDB = () => {
     const dbPath = path.join(LoveDir, 'data.json');
     if (!fs.existsSync(dbPath)) return { tokens: [], premium: [], resellers: [] };
@@ -494,6 +532,10 @@ const saveDB = (data) => {
         log('error', null, 'Database Save Error: ' + err.message);
     }
 };
+
+// ═══════════════════════════════════════════════════
+//  🔒  ACCESS CONTROL
+// ═══════════════════════════════════════════════════
 
 function sendSYLove(bot, chatId) {
     const s = (text) => styleText(text, 'script');
@@ -566,6 +608,10 @@ function canUseCommands(userId) {
         db.premium.includes(userId.toString())
     );
 }
+
+// ═══════════════════════════════════════════════════
+//  📱  WHATSAPP SESSIONS
+// ═══════════════════════════════════════════════════
 
 function GetSessionForUser(userId, chatId) {
     let db = getDB();
@@ -726,6 +772,10 @@ function BvgSYLoVe(cleanTarget) {
     return `Notification:\nPlease wait...\nThe bot is currently sending bug\nTarget: ${cleanTarget}`;
 }
 
+// ═══════════════════════════════════════════════════
+//  🤖  BOT STARTER
+// ═══════════════════════════════════════════════════
+
 function startSYloveBot(token) {
     try {
         const S7 = new SY(token, { polling: true });
@@ -766,41 +816,74 @@ function startSYloveBot(token) {
             });
         }
 
-        // ====== FIXED VERIFICATION CHECK ======
-        async function checkUserJoined(userId) {
-            try {
-                let isChannelMember = false;
-                let isGroupMember = false;
-                
-                // Check channel membership
-                try {
-                    const channelMember = await S7.getChatMember(config.channel, userId);
-                    isChannelMember = channelMember && 
-                        (channelMember.status === 'member' || channelMember.status === 'administrator' || channelMember.status === 'creator');
-                } catch (channelErr) {
-                    log('error', 'VERIFY_CHECK_CHANNEL', channelErr.message);
-                    // If bot is not admin in channel, we can't check - assume joined for now
-                    // OR you can set isChannelMember = false to force admin setup
-                    isChannelMember = false;
-                }
-                
-                // Check group membership
-                try {
-                    const groupMember = await S7.getChatMember(config.group, userId);
-                    isGroupMember = groupMember && 
-                        (groupMember.status === 'member' || groupMember.status === 'administrator' || groupMember.status === 'creator');
-                } catch (groupErr) {
-                    log('error', 'VERIFY_CHECK_GROUP', groupErr.message);
-                    isGroupMember = false;
-                }
-                
-                return { channel: isChannelMember, group: isGroupMember };
-            } catch (e) {
-                log('error', 'VERIFY_CHECK', e.message);
-                return { channel: false, group: false };
+        // ═══════════════════════════════════════════════════
+        //  ✅  FIXED VERIFICATION CHECK
+        // ═══════════════════════════════════════════════════
+        
+        // Channel/Group IDs ko extract karna
+        let channelId = config.channelId || '';
+        let groupId = config.groupId || '';
+        
+        // Agar IDs empty hain toh links se extract karo
+        if (!channelId && config.channel) {
+            // Public channel: @username se ID nahi milti, username hi use karte hain
+            // Private channel: -100... ID chahiye hoti hai
+            const channelMatch = config.channel.match(/t\\.me\\/(\\w+)/);
+            if (channelMatch) {
+                channelId = '@' + channelMatch[1];
             }
         }
-        // ====== END FIXED VERIFICATION ======
+        
+        if (!groupId && config.group) {
+            const groupMatch = config.group.match(/t\\.me\\/(\\+?[\\w-]+)/);
+            if (groupMatch) {
+                // Private groups mein invite link se ID nahi nikalti
+                // Bot ko group mein add karke ID nikaalni padegi
+                groupId = config.group;
+            }
+        }
+
+        async function checkUserJoined(userId) {
+            let isChannelMember = false;
+            let isGroupMember = false;
+            
+            // Channel check
+            try {
+                if (channelId) {
+                    const channelMember = await S7.getChatMember(channelId, userId);
+                    isChannelMember = channelMember && 
+                        (channelMember.status === 'member' || channelMember.status === 'administrator' || channelMember.status === 'creator');
+                } else {
+                    // Agar channel ID nahi hai toh assume true (ya false rakh sakte ho)
+                    isChannelMember = false;
+                }
+            } catch (channelErr) {
+                log('error', 'VERIFY_CHANNEL', `Channel check failed: ${channelErr.message}`);
+                // Bot admin nahi hai ya channel ID galat hai
+                isChannelMember = false;
+            }
+            
+            // Group check  
+            try {
+                if (groupId) {
+                    const groupMember = await S7.getChatMember(groupId, userId);
+                    isGroupMember = groupMember && 
+                        (groupMember.status === 'member' || groupMember.status === 'administrator' || groupMember.status === 'creator');
+                } else {
+                    isGroupMember = false;
+                }
+            } catch (groupErr) {
+                log('error', 'VERIFY_GROUP', `Group check failed: ${groupErr.message}`);
+                isGroupMember = false;
+            }
+            
+            return { channel: isChannelMember, group: isGroupMember };
+        }
+        // ═══════════════════════════════════════════════════
+
+        // ═══════════════════════════════════════════════════
+        //  📱  COMMANDS
+        // ═══════════════════════════════════════════════════
 
         SYLoVe('verify', async (msg) => {
             const chatId = msg.chat.id.toString();
@@ -811,10 +894,10 @@ function startSYloveBot(token) {
                 return S7.sendMessage(chatId, `${deco.success} ${styleText('You are already verified!', 'fancy')}`, { parse_mode: 'HTML' });
             }
             
-            // Show loading animation
+            // Animation
             await sendTypingAnimation(S7, chatId, 2000);
             
-            // FIXED: CHECK IF USER ACTUALLY JOINED CHANNEL AND GROUP
+            // FIXED CHECK
             const membership = await checkUserJoined(userId);
             
             if (!membership.channel || !membership.group) {
@@ -825,9 +908,9 @@ function startSYloveBot(token) {
                 await sendErrorAnimation(S7, chatId, `Join ${missing.join(' & ')} first!`);
                 
                 return S7.sendMessage(chatId, 
-                    `${deco.error} ${styleText('VERIFICATION FAILED', 'script')} ${deco.error}\n\n` +
-                    `${deco.warning} You haven't joined:\n` +
-                    missing.map(m => `${deco.bullet} ${m}`).join('\n') + `\n\n` +
+                    `${deco.error} ${styleText('VERIFICATION FAILED', 'script')} ${deco.error}\\n\\n` +
+                    `${deco.warning} You haven't joined:\\n` +
+                    missing.map(m => `${deco.bullet} ${m}`).join('\\n') + `\\n\\n` +
                     `${deco.info} Join first, then click verify!`,
                     { parse_mode: 'HTML' }
                 );
@@ -838,7 +921,6 @@ function startSYloveBot(token) {
             // Welcome animation
             await sendWelcomeAnimation(S7, chatId, name);
             
-            // Compact welcome text
             const welcomeText = getWelcomeAfterVerify(name);
             
             const menuButtons = {
@@ -866,7 +948,7 @@ function startSYloveBot(token) {
             const userId = msg.from.id.toString();
 
             if (!isUserVerified(userId)) {
-                // Show loading animation on start
+                // Animation
                 await sendTypingAnimation(S7, chatId, 1500);
                 
                 const verifyText = getVerificationMessage(name);
@@ -875,6 +957,8 @@ function startSYloveBot(token) {
                         inline_keyboard: [
                             [{ text: `${deco.rocket} Join Channel`, url: `${config.channel}` }],
                             [{ text: `${deco.ghost} Join Group`, url: `${config.group}` }],
+                            [{ text: `${deco.fire} YouTube`, url: `${config.youtube || 'https://youtube.com/@yourchannel'}` }],
+                            [{ text: `${deco.zap} WhatsApp`, url: `${config.whatsapp || 'https://whatsapp.com/channel/yourchannel'}` }],
                             [{ text: `${deco.verified} I have joined all`, callback_data: 'verify_me' }]
                         ]
                     }
@@ -935,10 +1019,10 @@ function startSYloveBot(token) {
                     return;
                 }
                 
-                // Loading animation
+                // Animation
                 await sendTypingAnimation(S7, chatId, 1500);
                 
-                // FIXED: CHECK IF USER ACTUALLY JOINED BEFORE VERIFYING
+                // FIXED CHECK
                 const membership = await checkUserJoined(userId);
                 
                 if (!membership.channel || !membership.group) {
@@ -1048,7 +1132,7 @@ function startSYloveBot(token) {
 │ /nullfinity [num] [hours]
 │ /crashfinity [num]
 └──────────────────────┘
-${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}` : ''}`;
+${!isPremium ? `\\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}` : ''}`;
 
                 await S7.editMessageCaption(androidText, {
                     chat_id: chatId,
@@ -1070,7 +1154,7 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
 │ /iosinvisible [num] [hours]
 │ /iosvisible [num] [hours]
 └──────────────────────┘
-${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}` : ''}`;
+${!isPremium ? `\\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}` : ''}`;
 
                 await S7.editMessageCaption(iosText, {
                     chat_id: chatId,
@@ -1101,7 +1185,7 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
 │ /listgc
 │ /groupid [link]
 └──────────────────────┘
-${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}` : ''}`;
+${!isPremium ? `\\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}` : ''}`;
 
                 await S7.editMessageCaption(groupText, {
                     chat_id: chatId,
@@ -1162,6 +1246,10 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
             return executeFn();
         }
 
+        // ═══════════════════════════════════════════════════
+        //  🐛  BUG COMMANDS
+        // ═══════════════════════════════════════════════════
+
         SYLoVe('groupid', async (msg) => {
             const chatId = msg.chat.id.toString();
             const userId = msg.from.id.toString();
@@ -1179,7 +1267,7 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
             const client = session.sock;
 
             if (!link || !link.includes('chat.whatsapp.com/')) {
-                return S7.sendMessage(chatId, `Usage: /groupid [Group Link]\nExample: /groupid https://chat.whatsapp.com/Kzj...`);
+                return S7.sendMessage(chatId, `Usage: /groupid [Group Link]\\nExample: /groupid https://chat.whatsapp.com/Kzj...`);
             }
 
             try {
@@ -1189,18 +1277,18 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                 await S7.sendMessage(chatId, 'Scanning Link...', { parse_mode: 'HTML' });
                 const groupInfo = await client.groupGetInviteInfo(code);
                 const text = 
-                    `GROUP ID FOUND\n` +
-                    `--------------------\n` +
-                    `Name: ${groupInfo.subject}\n` +
-                    `ID: ${groupInfo.id}\n` +
-                    `Owner: ${groupInfo.owner || 'Unknown'}\n` +
-                    `Size: ${groupInfo.size || 'Unknown'}\n` +
-                    `--------------------\n` +
+                    `GROUP ID FOUND\\n` +
+                    `--------------------\\n` +
+                    `Name: ${groupInfo.subject}\\n` +
+                    `ID: ${groupInfo.id}\\n` +
+                    `Owner: ${groupInfo.owner || 'Unknown'}\\n` +
+                    `Size: ${groupInfo.size || 'Unknown'}\\n` +
+                    `--------------------\\n` +
                     `Click the ID to copy`;
                 await S7.sendMessage(chatId, text, { parse_mode: 'HTML' });
             } catch (err) {
                 log('error', 'groupid', err.message);
-                S7.sendMessage(chatId, `Invalid or Revoked Link\nError: ${err.message}`, { parse_mode: 'HTML' });
+                S7.sendMessage(chatId, `Invalid or Revoked Link\\nError: ${err.message}`, { parse_mode: 'HTML' });
             }
         });
 
@@ -1226,7 +1314,6 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
 
                     log('command', msg.from.first_name, `Calling xbetainvis on ${cleanTarget}`);
                     
-                    // Loading animation
                     await sendLoadingAnimation(S7, chatId, 'Preparing Attack');
                     
                     await S7.sendPhoto(chatId, LoveLogo, { caption: BvgSYLoVe(cleanTarget), parse_mode: 'HTML' });
@@ -1263,7 +1350,6 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
 
                     log('command', msg.from.first_name, `Calling ${cmd} on ${cleanTarget}`);
                     
-                    // Loading animation
                     await sendLoadingAnimation(S7, chatId, 'Preparing Attack');
                     
                     await S7.sendPhoto(chatId, LoveLogo, { caption: BvgSYLoVe(cleanTarget), parse_mode: 'HTML' });
@@ -1624,11 +1710,11 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     const client = session.sock;
 
                     if (!targetNum || !targetNum.endsWith('@g.us')) {
-                        return S7.sendMessage(chatId, `Provide a valid group JID.\nExample: /${s7CM} 123456@g.us 1`);
+                        return S7.sendMessage(chatId, `Provide a valid group JID.\\nExample: /${s7CM} 123456@g.us 1`);
                     }
                     
                     if (!durationArg) {
-                        return S7.sendMessage(chatId, `Provide duration in hours.\nExample: /${s7CM} 123456@g.us 1`);
+                        return S7.sendMessage(chatId, `Provide duration in hours.\\nExample: /${s7CM} 123456@g.us 1`);
                     }
                     
                     const hours = parseInt(durationArg);
@@ -1672,11 +1758,11 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     const client = session.sock;
 
                     if (!targetNum || !targetNum.endsWith('@g.us')) {
-                        return S7.sendMessage(chatId, `Provide a valid group JID.\nExample: /${s7CM} 123456@g.us 1`);
+                        return S7.sendMessage(chatId, `Provide a valid group JID.\\nExample: /${s7CM} 123456@g.us 1`);
                     }
                     
                     if (!durationArg) {
-                        return S7.sendMessage(chatId, `Provide duration in hours.\nExample: /${s7CM} 123456@g.us 1`);
+                        return S7.sendMessage(chatId, `Provide duration in hours.\\nExample: /${s7CM} 123456@g.us 1`);
                     }
                     
                     const hours = parseInt(durationArg);
@@ -1826,10 +1912,10 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     const client = session.sock;
 
                     if (!targetJid || !targetJid.endsWith('@g.us')) {
-                        return S7.sendMessage(chatId, `Provide a valid group JID.\nExample: /${cmd} 123456@g.us 1`);
+                        return S7.sendMessage(chatId, `Provide a valid group JID.\\nExample: /${cmd} 123456@g.us 1`);
                     }
                     if (!durationArg) {
-                        return S7.sendMessage(chatId, `Provide duration in hours.\nExample: /${cmd} 123456@g.us 1`);
+                        return S7.sendMessage(chatId, `Provide duration in hours.\\nExample: /${cmd} 123456@g.us 1`);
                     }
                     const hours = parseInt(durationArg);
                     if (isNaN(hours) || hours <= 0) return S7.sendMessage(chatId, 'Invalid duration');
@@ -1868,7 +1954,7 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                 return S7.sendMessage(chatId, 'No Number connected please use /reqpair to connect');
             }
 
-            let text = `LIST OF WHATSAPP GROUPS\n\n`;
+            let text = `LIST OF WHATSAPP GROUPS\\n\\n`;
             let totalGroups = 0;
             let index = 1;
 
@@ -1883,17 +1969,17 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
 
                         if (groups.length === 0) continue;
 
-                        text += `Number: ${num}\n`;
-                        text += `----------------\n`;
+                        text += `Number: ${num}\\n`;
+                        text += `----------------\\n`;
 
                         for (const group of groups) {
                             const meta = await sock.groupMetadata(group.id);
 
-                            text += `Group ${index++}\n`;
-                            text += `Name: ${meta.subject}\n`;
-                            text += `ID: ${meta.id}\n`;
-                            text += `Members: ${meta.participants.length}\n`;
-                            text += `----------------\n\n`;
+                            text += `Group ${index++}\\n`;
+                            text += `Name: ${meta.subject}\\n`;
+                            text += `ID: ${meta.id}\\n`;
+                            text += `Members: ${meta.participants.length}\\n`;
+                            text += `----------------\\n\\n`;
 
                             totalGroups++;
                         }
@@ -1908,8 +1994,8 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
             }
 
             text =
-                `LIST OF GROUP BELOW\n\n` +
-                `Total Groups: ${totalGroups}\n\n` +
+                `LIST OF GROUP BELOW\\n\\n` +
+                `Total Groups: ${totalGroups}\\n\\n` +
                 text;
 
             if (text.length > 4000) {
@@ -1920,6 +2006,10 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
 
             S7.sendMessage(chatId, text, { parse_mode: 'HTML' });
         });
+
+        // ═══════════════════════════════════════════════════
+        //  ⚙️  ADMIN COMMANDS
+        // ═══════════════════════════════════════════════════
 
         SYLoVe('addtoken', async (msg) => {
             const chatId = msg.chat.id.toString();
@@ -1938,7 +2028,7 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                 db.tokens.push({ token: newToken, owner: userId });
                 saveDB(db);
                 startSYloveBot(newToken);
-                S7.sendMessage(chatId, `Token Connected\nBot: ${botInfo.first_name}\n@${botInfo.username}`);
+                S7.sendMessage(chatId, `Token Connected\\nBot: ${botInfo.first_name}\\n@${botInfo.username}`);
             } catch (e) {
                 S7.sendMessage(chatId, 'Invalid token.');
             }
@@ -1950,7 +2040,7 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
             const args = msg.text.split(' ');
             const number = args[1];
             if (!LoveGlobalState(userId)) return sendSYLove(S7, chatId);
-            if (!number) return S7.sendMessage(chatId, 'Provide a phone number.\nExample: /reqpair +921131313313');
+            if (!number) return S7.sendMessage(chatId, 'Provide a phone number.\\nExample: /reqpair +921131313313');
             const cleanNumber = number.replace(/[^0-9]/g, '');
             await StartLovingSY(chatId, cleanNumber, S7);
         });
@@ -1961,7 +2051,7 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
             const args = msg.text.split(' ');
             const number = args[1];
             if (!LoveGlobalState(userId)) return sendSYLove(S7, chatId);
-            if (!number) return S7.sendMessage(chatId, 'Provide a phone number.\nExample: /delpair +921131313313');
+            if (!number) return S7.sendMessage(chatId, 'Provide a phone number.\\nExample: /delpair +921131313313');
             const cleanNumber = number.replace(/[^0-9]/g, '');
             const SYPaTH = `./Love/auth/${chatId}/${cleanNumber}`;
             if (fs.existsSync(SYPaTH)) {
@@ -2003,15 +2093,15 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
             const myTokens = db.tokens.filter(t => t.owner === userId);
             if (!LoveGlobalState(userId)) return sendSYLove(S7, chatId);
             if (myTokens.length === 0) return S7.sendMessage(chatId, 'You have not added any tokens.');
-            let text = 'Your Connected Bots\n--------------------\n\n';
+            let text = 'Your Connected Bots\\n--------------------\\n\\n';
             let count = 1;
             for (const item of myTokens) {
                 try {
                     const bot = new SY(item.token, { polling: false });
                     const info = await bot.getMe();
-                    text += `${count}. ${info.first_name}\nUsername: @${info.username}\nToken:\n${item.token}\n--------------------\n\n`;
+                    text += `${count}. ${info.first_name}\\nUsername: @${info.username}\\nToken:\\n${item.token}\\n--------------------\\n\\n`;
                 } catch {
-                    text += `${count}. Unknown Bot\nToken:\n${item.token}\n--------------------\n\n`;
+                    text += `${count}. Unknown Bot\\nToken:\\n${item.token}\\n--------------------\\n\\n`;
                 }
                 count++;
             }
@@ -2053,18 +2143,18 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
             if (chatId !== config.adminId) return S7.sendMessage(chatId, unauthorized);
             let db = getDB();
             if (db.resellers.length === 0) return S7.sendMessage(chatId, 'No resellers found.');
-            let text = 'Reseller List:\n\n';
+            let text = 'Reseller List:\\n\\n';
             for (let i = 0; i < db.resellers.length; i++) {
                 const id = db.resellers[i].toString();
                 try {
                     const user = await S7.getChat(id);
                     const username = user.username ? `@${user.username} : ` : '';
-                    text += `${i + 1}. ${username}${id}\n`;
+                    text += `${i + 1}. ${username}${id}\\n`;
                 } catch {
-                    text += `${i + 1}. ${id}\n`;
+                    text += `${i + 1}. ${id}\\n`;
                 }
             }
-            text += '\n------------------';
+            text += '\\n------------------';
             S7.sendMessage(chatId, text, { parse_mode: 'HTML' });
         });
 
@@ -2078,9 +2168,9 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
             const args = msg.text.split(' ').slice(1).join(' ');
             const replyMsg = msg.reply_to_message;
             if (!args && !replyMsg) {
-                return S7.sendMessage(chatId, 'Usage:\n1. /broadcast Your Message\n2. Reply to an image/video with /broadcast', { parse_mode: 'HTML' });
+                return S7.sendMessage(chatId, 'Usage:\\n1. /broadcast Your Message\\n2. Reply to an image/video with /broadcast', { parse_mode: 'HTML' });
             }
-            const statusMsg = await S7.sendMessage(chatId, `Starting Broadcast...\n\nTarget Users: ${users.length}`, { parse_mode: 'HTML' });
+            const statusMsg = await S7.sendMessage(chatId, `Starting Broadcast...\\n\\nTarget Users: ${users.length}`, { parse_mode: 'HTML' });
             let success = 0, failed = 0;
             for (const user of users) {
                 try {
@@ -2090,7 +2180,7 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                 } catch { failed++; }
                 await new Promise(resolve => setTimeout(resolve, 50));
             }
-            await S7.editMessageText(`Broadcast Completed\n\nTotal Users: ${users.length}\nSuccess: ${success}\nFailed/Blocked: ${failed}`, {
+            await S7.editMessageText(`Broadcast Completed\\n\\nTotal Users: ${users.length}\\nSuccess: ${success}\\nFailed/Blocked: ${failed}`, {
                 chat_id: chatId,
                 message_id: statusMsg.message_id,
                 parse_mode: 'HTML'
@@ -2142,18 +2232,18 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
             if (chatId !== config.adminId) return S7.sendMessage(chatId, unauthorized);
             let db = getDB();
             if (db.premium.length === 0) return S7.sendMessage(chatId, 'No premium users found.');
-            let text = 'Premium List:\n\n';
+            let text = 'Premium List:\\n\\n';
             for (let i = 0; i < db.premium.length; i++) {
                 const id = db.premium[i].toString();
                 try {
                     const user = await S7.getChat(id);
                     const username = user.username ? `@${user.username} : ` : '';
-                    text += `${i + 1}. ${username}${id}\n`;
+                    text += `${i + 1}. ${username}${id}\\n`;
                 } catch {
-                    text += `${i + 1}. ${id}\n`;
+                    text += `${i + 1}. ${id}\\n`;
                 }
             }
-            text += '\n------------------';
+            text += '\\n------------------';
             S7.sendMessage(chatId, text, { parse_mode: 'HTML' });
         });
 
@@ -2179,8 +2269,8 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
             const userFile = path.join(LoveDir, 'user.json');
             if (!fs.existsSync(userFile)) return S7.sendMessage(msg.chat.id, 'No users found.');
             const users = JSON.parse(fs.readFileSync(userFile));
-            let list = 'User List:\n\n';
-            users.forEach((u, i) => { list += `${i + 1}. ${u.name} (${u.id})\n`; });
+            let list = 'User List:\\n\\n';
+            users.forEach((u, i) => { list += `${i + 1}. ${u.name} (${u.id})\\n`; });
             if (list.length > 4000) {
                 const listPath = path.join(LoveDir, 'list.txt');
                 fs.writeFileSync(listPath, list);
@@ -2194,6 +2284,10 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
         log('error', 'STARTUP', `Could not start bot with token: ${token.substring(0, 10)}...`);
     }
 }
+
+// ═══════════════════════════════════════════════════
+//  🚀  START BOT
+// ═══════════════════════════════════════════════════
 
 startSYloveBot(config.mainToken);
 
