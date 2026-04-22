@@ -837,7 +837,8 @@ const channelMatch = config.channel.match(/t\.me\/([a-zA-Z0-9_]+)/);
         }
         
         if (!groupId && config.group) {
-            const groupMatch = config.group.match(/t\\.me\\/(\\+?[\\w-]+)/);
+const groupMatch = config.group.match(/t\.me\/(\w+[\w-]+)/);
+
             if (groupMatch) {
                 // Private groups mein invite link se ID nahi nikalti
                 // Bot ko group mein add karke ID nikaalni padegi
