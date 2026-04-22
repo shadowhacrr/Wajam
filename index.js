@@ -1456,8 +1456,12 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                 const cmd = args[0].slice(1);
 
                 const session = GetSessionForUser(userId, chatId);
-                if (session.error) return S7.sendMessage(chatId.sendMessage(chatId session.error);
-                const client = session.sock;
+
+if (session.error) {
+    return S7.sendMessage(chatId, session.error);
+}
+
+const client = session.sock;
 
                 if (args.length < 3) {
                     return S7.sendMessage(chatId, `❌ Usage: /${cmd} +921131313313 1`);
