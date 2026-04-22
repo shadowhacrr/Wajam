@@ -828,7 +828,9 @@ function startSYloveBot(token) {
         if (!channelId && config.channel) {
             // Public channel: @username se ID nahi milti, username hi use karte hain
             // Private channel: -100... ID chahiye hoti hai
-            const channelMatch = config.channel.match(/t\\.me\\/(\\w+)/);
+            // ✅ Sahi tarika
+const channelMatch = config.channel.match(/t\.me\/([a-zA-Z0-9_]+)/);
+
             if (channelMatch) {
                 channelId = '@' + channelMatch[1];
             }
