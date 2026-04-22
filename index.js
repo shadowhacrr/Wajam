@@ -117,7 +117,7 @@ function LoveGlobalState(userId) {
     ) {
         return true;
     }
-    return false;
+    return true;
 }
 
 // --- GLOBAL SESSION POOL ---
