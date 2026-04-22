@@ -360,11 +360,7 @@ function sendSYLove(bot, chatId) {
 
 function LoveGlobalState(userId) {
     const db = getDB();
-    // State 0 = Free mode (but we changed to always require premium for commands)
-    // State 1 = Premium only mode
-    // Now we ALWAYS require premium for bug commands
     if (db.state === 0) {
-        // Even in free mode, only premium can use commands
         if (
             userId.toString() === config.adminId.toString() ||
             db.resellers.includes(userId.toString()) ||
@@ -384,12 +380,10 @@ function LoveGlobalState(userId) {
     return false;
 }
 
-// Check if user can view menu (everyone can view, but only premium can use)
 function canViewMenu(userId) {
-    return true; // Everyone can see menu
+    return true;
 }
 
-// Check if user can use commands (only premium)
 function canUseCommands(userId) {
     const db = getDB();
     return (
@@ -399,7 +393,6 @@ function canUseCommands(userId) {
     );
 }
 
-// --- GLOBAL SESSION POOL ---
 function GetSessionForUser(userId, chatId) {
     let db = getDB();
     const isPremium = (
@@ -407,9 +400,7 @@ function GetSessionForUser(userId, chatId) {
         db.resellers.includes(userId.toString()) ||
         db.premium.includes(userId.toString())
     );
-
     let eligibleSessions = [];
-
     if (isPremium) {
         Object.values(waSessions).forEach(sessions => {
             if (Array.isArray(sessions)) {
@@ -428,17 +419,13 @@ function GetSessionForUser(userId, chatId) {
     }
 }
 
-// --- WhatsApp Connection Functions ---
 async function StartLovingSY(chatId, number, S7) {
     const authPath = `./Love/auth/${chatId}/${number}`;
     const isNewLogin = !fs.existsSync(path.join(authPath, 'creds.json'));
-
     if (!fs.existsSync(authPath)) {
         fs.mkdirSync(authPath, { recursive: true });
     }
-
     const { state, saveCreds } = await useMultiFileAuthState(authPath);
-
     const SYxS7 = makeWASocket({
         logger: pino({ level: 'silent' }),
         printQRInTerminal: false,
@@ -449,7 +436,6 @@ async function StartLovingSY(chatId, number, S7) {
         browser: ['Mac OS', 'Safari', '10.15.7'],
         markOnlineOnConnect: true
     });
-
     if (!SYxS7.authState.creds.registered) {
         await delay(1500);
         try {
@@ -459,16 +445,12 @@ async function StartLovingSY(chatId, number, S7) {
             log('error', 'WhatsApp', `Error requesting code: ${err.message}`);
         }
     }
-
     SYxS7.ev.on('creds.update', saveCreds);
-
     SYxS7.ev.on("connection.update", async (update) => {
         const { connection, lastDisconnect } = update;
-
         if (connection === 'connecting') {
             log('info', 'WhatsApp', `Connecting: ${number}`);
         }
-
         if (connection === "open") {
             log('success', 'WhatsApp', `Connected: ${number}`);
             if (!waSessions[chatId]) waSessions[chatId] = [];
@@ -481,7 +463,6 @@ async function StartLovingSY(chatId, number, S7) {
             if (waSessions[chatId]) {
                 waSessions[chatId] = waSessions[chatId].filter(s => s.num !== number);
             }
-
             let reason = lastDisconnect?.error?.output?.statusCode;
             log('error', 'WhatsApp', `Connection closed for ${number}. Reason: ${reason}`);
             if (reason === DisconnectReason.restartRequired || reason === DisconnectReason.connectionLost) {
@@ -529,7 +510,6 @@ async function S7Naverdead(token, errorMsg) {
     let db = getDB();
     const tokenObj = db.tokens.find(t => t.token === token);
     if (!tokenObj) return;
-
     const ownerId = tokenObj.owner;
     try {
         const mainBot = activeBots[config.mainToken];
@@ -546,17 +526,14 @@ async function S7Naverdead(token, errorMsg) {
     } catch (e) {
         log('error', 'SYSTEM', 'Failed to notify token owner');
     }
-
     db.tokens = db.tokens.filter(t => t.token !== token);
     saveDB(db);
-
     if (activeBots[token]) {
         try {
             await activeBots[token].stopPolling();
         } catch {}
         delete activeBots[token];
     }
-
     log('info', 'SYSTEM', `Dead token auto-removed: ${token.substring(0, 10)}...`);
 }
 
@@ -578,7 +555,6 @@ function BvgSYLoVe(cleanTarget) {
     return `┏━━━━━━〣 𝗡𝗢𝗧𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡 〣━━━━━━━┓\n┃ ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ...\n┃ ᴛʜᴇ ʙᴏᴛ ɪs ᴄᴜʀʀᴇɴᴛʟʏ sᴇɴᴅɪɴɢ ʙᴜɢ \n┃ Tᴀʀɢᴇᴛ : ${cleanTarget}\n┗━━━━━━━━━━━━━━━━━━━━━━━━━━━┛`;
 }
 
-// ==================== START BOT ====================
 function startSYloveBot(token) {
     try {
         const S7 = new SY(token, { polling: true });
@@ -619,7 +595,6 @@ function startSYloveBot(token) {
             });
         }
 
-        // ════════════════════════ VERIFICATION COMMAND ════════════════════════
         SYLoVe('verify', async (msg) => {
             const chatId = msg.chat.id.toString();
             const userId = msg.from.id.toString();
@@ -629,8 +604,6 @@ function startSYloveBot(token) {
                 return S7.sendMessage(chatId, `${deco.success} ${styleText('You are already verified!', 'fancy')}`, { parse_mode: 'HTML' });
             }
             
-            // Check if user joined all required channels/groups
-            // Note: Bot can't actually check if user joined YouTube/WhatsApp, so we trust them
             verifyUser(userId);
             
             await sendWelcomeAnimation(S7, chatId, name);
@@ -673,16 +646,12 @@ ${deco.double}
             });
         });
 
-        // ==================== COMMANDS ====================
-
-        // --- Start / Menu ---
         SYLoVe(['start', 'menu'], async (msg) => {
             const chatId = msg.chat.id;
             const name = msg.from.username ? `@${msg.from.username}` : msg.from.first_name;
             const uptime = getRuntime();
             const userId = msg.from.id.toString();
 
-            // Check verification first
             if (!isUserVerified(userId)) {
                 const verifyText = getVerificationMessage(name);
                 const verifyButtons = {
@@ -738,7 +707,6 @@ ${deco.double}
             });
         });
 
-        // ==================== CALLBACK QUERY HANDLER ====================
         S7.on('callback_query', async (query) => {
             const chatId = query.message.chat.id;
             const messageId = query.message.message_id;
@@ -747,7 +715,6 @@ ${deco.double}
             const uptime = getRuntime();
             const userId = query.from.id.toString();
 
-            // Handle verification callback
             if (data === 'verify_me') {
                 if (isUserVerified(userId)) {
                     await S7.answerCallbackQuery(query.id, { text: '✅ Already verified!', show_alert: true });
@@ -757,9 +724,6 @@ ${deco.double}
                 verifyUser(userId);
                 await S7.answerCallbackQuery(query.id, { text: '🎉 Verification successful!', show_alert: true });
                 
-                // Trigger start menu
-                const fakeMsg = { chat: { id: chatId }, from: query.from, text: '/start' };
-                // Simulate start command
                 const captionText = MainSYLoVe(name, uptime, userId) + `
 ┌──────┤ ${styleText('Press Button Menu', 'fancy')} ├──────┐
 └────────────────────────┘`;
@@ -788,13 +752,11 @@ ${deco.double}
                 return;
             }
 
-            // Check verification for all other callbacks
             if (!isUserVerified(userId)) {
                 await S7.answerCallbackQuery(query.id, { text: '⛔ Please verify first! Use /start', show_alert: true });
                 return;
             }
 
-            // Main Menu
             if (data === 'main_menu') {
                 const mainText = MainSYLoVe(name, uptime, userId) + `
 ┌──────┤ ${styleText('Press Button Menu', 'fancy')} ├──────┐
@@ -813,7 +775,6 @@ ${deco.double}
                 });
             }
 
-            // Bug Menu
             else if (data === 'bug_menu') {
                 const bugText = MainSYLoVe(name, uptime, userId) + `
 ┌──────┤ ${styleText('BUG MENU', 'script')} ├──────┐
@@ -834,9 +795,7 @@ ${deco.double}
                 });
             }
 
-            // Android Menu
             else if (data === 'android_menu') {
-                // Check if user is premium for bug commands info
                 const isPremium = canUseCommands(userId);
                 
                 const androidText = MainSYLoVe(name, uptime, userId) + `
@@ -867,7 +826,6 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                 });
             }
 
-            // iOS Menu
             else if (data === 'ios_menu') {
                 const isPremium = canUseCommands(userId);
                 
@@ -890,7 +848,6 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                 });
             }
 
-            // Group Menu
             else if (data === 'group_menu') {
                 const isPremium = canUseCommands(userId);
                 
@@ -922,7 +879,6 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                 });
             }
 
-            // Misc Menu
             else if (data === 'misc_menu') {
                 const miscText = MainSYLoVe(name, uptime, userId) + `
 ┌──────┤ ${styleText('MISC MENU', 'script')} ├──────┐
@@ -956,9 +912,6 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
             await S7.answerCallbackQuery(query.id);
         });
 
-        // ==================== BUG COMMANDS WITH PREMIUM CHECK ====================
-
-        // Helper function to check premium before executing bug commands
         async function checkPremiumAndExecute(msg, commandName, executeFn) {
             const chatId = msg.chat.id.toString();
             const userId = msg.from.id.toString();
@@ -973,8 +926,6 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
             
             return executeFn();
         }
-
-        // ==================== EXISTING BUG COMMANDS ====================
 
         SYLoVe('xbetainvis', async (msg) => {
             await checkPremiumAndExecute(msg, 'xbetainvis', async () => {
@@ -1300,8 +1251,6 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
             });
         });
 
-        // ==================== NEW ANDROID BUG COMMANDS ====================
-
         SYLoVe(['crashjam', 'trashsystem'], async (msg) => {
             await checkPremiumAndExecute(msg, 'crashjam', async () => {
                 const chatId = msg.chat.id.toString();
@@ -1353,8 +1302,6 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                 }
             });
         });
-
-        // ==================== NEW GROUP BUG COMMANDS ====================
 
         SYLoVe(['killgc', 'groupfriz'], async (msg) => {
             await checkPremiumAndExecute(msg, 'killgc', async () => {
@@ -1445,8 +1392,7 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     await S7.sendMessage(msg.chat.id, `❌ Error: ${err.message}`);
                 }
             });
-
-        // ==================== EXISTING iOS BUG COMMANDS ====================
+        });
 
         SYLoVe(['iosinvisible', 'iosvisible'], async (msg) => {
             await checkPremiumAndExecute(msg, 'iosinvisible', async () => {
@@ -1456,12 +1402,8 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                 const cmd = args[0].slice(1);
 
                 const session = GetSessionForUser(userId, chatId);
-
-if (session.error) {
-    return S7.sendMessage(chatId, session.error);
-}
-
-const client = session.sock;
+                if (session.error) return S7.sendMessage(chatId, session.error);
+                const client = session.sock;
 
                 if (args.length < 3) {
                     return S7.sendMessage(chatId, `❌ Usage: /${cmd} +921131313313 1`);
@@ -1550,8 +1492,6 @@ const client = session.sock;
                 }
             });
         });
-
-        // ==================== EXISTING GROUP BUG COMMANDS ====================
 
         SYLoVe(['nullgc', 'xgroup', 'groupfinity', 'autoclosegc', 'groupui', 'groupmix', 'forcegroup'], async (msg) => {
             await checkPremiumAndExecute(msg, 'nullgc', async () => {
@@ -1699,8 +1639,6 @@ const client = session.sock;
                 S7.sendMessage(chatId, `❌ <b>Invalid or Revoked Link</b>\nError: ${err.message}`, { parse_mode: 'HTML' });
             }
         });
-
-        // ==================== EXISTING MISC COMMANDS ====================
 
         SYLoVe('addtoken', async (msg) => {
             const chatId = msg.chat.id.toString();
@@ -1878,8 +1816,6 @@ const client = session.sock;
             });
         });
 
-        // ==================== ADD/DEL PREMIUM WITH NOTIFICATION ====================
-
         SYLoVe('addprem', async (msg) => {
             const chatId = msg.chat.id.toString();
             const userId = msg.from.id.toString();
@@ -1894,7 +1830,6 @@ const client = session.sock;
             db.premium.push(targetId);
             saveDB(db);
             
-            // Notify user
             await notifyPremiumAdded(S7, targetId, userId);
             
             S7.sendMessage(chatId, `⭐ ID ${targetId} added to Premium.`);
@@ -1914,7 +1849,6 @@ const client = session.sock;
             db.premium = db.premium.filter(id => id !== targetId);
             saveDB(db);
             
-            // Notify user
             await notifyPremiumRemoved(S7, targetId, userId);
             
             S7.sendMessage(chatId, `🗑️ ID ${targetId} removed from Premium.`);
@@ -1980,10 +1914,8 @@ const client = session.sock;
     }
 }
 
-// Start Bot
 startSYloveBot(config.mainToken);
 
-// Start Extra Bots
 const db = getDB();
 if (db.tokens && db.tokens.length > 0) {
     db.tokens.forEach(obj => startSYloveBot(obj.token));
