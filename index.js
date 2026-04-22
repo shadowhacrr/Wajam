@@ -1445,7 +1445,6 @@ ${!isPremium ? `\n${deco.lock} ${styleText('PREMIUM REQUIRED TO USE', 'fancy')}`
                     await S7.sendMessage(msg.chat.id, `❌ Error: ${err.message}`);
                 }
             });
-        });
 
         // ==================== EXISTING iOS BUG COMMANDS ====================
 
