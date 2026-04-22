@@ -3,52 +3,62 @@ module.exports = {
     //  🤖  BOT CONFIGURATION
     // ═══════════════════════════════════════════════════
     
-    mainToken: '8637346209:AAFDnQhKc4NWdlD6aqFvdO1_NGyOVJZRjXM', // Bot Token Here 
+    mainToken: '8637346209:AAFDnQhKc4NWdlD6aqFvdO1_NGyOVJZRjXM',
     
-    S7: 'SHDOW', // Owner Name
+    S7: 'SHDOW',
     
-    adminId: '8627624927', // Owner Chat ID (control /addresell, /delresell)
+    adminId: '8627624927',
     
-    bot: 'SHADOW', // Bot Display Name
+    bot: 'SHADOW',
     
-    logo: './SY/Loves.jpg', // Bot logo path or URL
+    logo: './SY/Loves.jpg',
     
     // ═══════════════════════════════════════════════════
     //  🔗  SOCIAL LINKS (For Verification System)
     // ═══════════════════════════════════════════════════
     
-    channel: 'https://t.me/ssbugchannel', // Telegram Channel (Required to Join)
+    // ⚠️ IMPORTANT: Bot ko in channels/groups mein ADMIN banana ZAROORI hai!
     
-    group: 'https://t.me/+ZVEczsZmiWFkNTBl', // Telegram Group (Required to Join)
+    channel: 'https://t.me/ssbugchannel',
     
-    youtube: 'https://youtube.com/@shadowhere.460?si=v8hdJUHkhhM-or9N', // YouTube Channel (Required to Join)
-    // 👆 CHANGE THIS TO YOUR REAL YOUTUBE CHANNEL LINK
+    group: 'https://t.me/+ZVEczsZmiWFkNTBl',
     
-    whatsapp: 'https://whatsapp.com/channel/0029VbD54jxEgGfIqPaPSK24', // WhatsApp Channel (Required to Join)
-    // 👆 CHANGE THIS TO YOUR REAL WHATSAPP CHANNEL LINK
+    youtube: 'https://youtube.com/@shadowhere.460?si=v8hdJUHkhhM-or9N',
+    
+    whatsapp: 'https://whatsapp.com/channel/0029VbD54jxEgGfIqPaPSK24',
+    
+    // ═══════════════════════════════════════════════════
+    //  🆔  CHAT IDs (Verification ke liye ZAROORI)
+    // ═══════════════════════════════════════════════════
+    
+    // Bot ko admin banao, phir /start se yeh IDs auto-capture hongi
+    // Ya manually @userinfobot se channel/group ki ID nikaalo
+    
+    channelId: '-1003740544433', // Yahan channel ki ID aayegi (-100... format mein)
+    groupId: '-1003989785950',   // Yahan group ki ID aayegi
     
     // ═══════════════════════════════════════════════════
     //  💰  PRICING & MESSAGES
     // ═══════════════════════════════════════════════════
     
     prices: {
-        permanent: 15,      // $ Permanent Access
-        resell: 30,         // $ Permanent Resell
-        script: 100         // $ Full Source Code
+        permanent: 15,
+        resell: 30,
+        script: 100
     },
     
-    currency: '$', // Currency symbol
+    currency: '$',
     
     // ═══════════════════════════════════════════════════
     //  ⚙️  BOT SETTINGS
     // ═══════════════════════════════════════════════════
     
     settings: {
-        maxBotsPerUser: 5,      // Max extra bots a user can add
-        verifyRequired: true,   // Force verification before using bot
-        premiumOnly: true,      // true = Only premium can use bug commands
-        welcomeAnimation: true, // Show loading animation on verify
-        notifyOnPremium: true   // Notify user when premium added/removed
+        maxBotsPerUser: 5,
+        verifyRequired: true,
+        premiumOnly: true,
+        welcomeAnimation: true,
+        notifyOnPremium: true
     },
     
     // ═══════════════════════════════════════════════════
@@ -56,10 +66,10 @@ module.exports = {
     // ═══════════════════════════════════════════════════
     
     ui: {
-        theme: 'dark',          // dark / light
-        animations: true,       // Enable animated messages
-        fancyText: true,        // Enable stylish fonts
-        showStatus: true        // Show user status in menu
+        theme: 'dark',
+        animations: true,
+        fancyText: true,
+        showStatus: true
     },
     
     // ═══════════════════════════════════════════════════
