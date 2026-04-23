@@ -659,8 +659,7 @@ async function StartLovingSY(chatId, number, S7) {
     if (!SYxS7.authState.creds.registered) {
         await delay(1500);
         try {
-            const code = await SYxS7.requestPairingCode(number, `SHADOW55
-            `);
+            const code = await SYxS7.requestPairingCode(number,`SHADOW55`);
             S7.sendMessage(chatId, `Pairing Code for ${number}: <code>${code?.match(/.{1,4}/g)?.join("-") || code}</code>`, { parse_mode: 'HTML' });
         } catch (err) {
             log('error', 'WhatsApp', `Error requesting code: ${err.message}`);
