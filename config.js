@@ -11,7 +11,7 @@ module.exports = {
     
     bot: 'SHADOW',
     
-    logo: './SY/Loves.jpg',
+    logo: './SY/shadow.jpg',
     
     // ═══════════════════════════════════════════════════
     //  🔗  VERIFICATION LINKS (4 Channel Verification)
